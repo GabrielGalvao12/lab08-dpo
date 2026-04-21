@@ -1,5 +1,6 @@
 # Laboratório 08 — Alinhamento Humano com DPO
 # Instituto de Ensino Superior iCEV
+
 # Objetivo: Alinhar um LLM usando Direct Preference Optimization
 # para garantir comportamento HHH (Helpful, Honest, Harmless)
 
@@ -8,7 +9,7 @@
 
 # !pip install -q transformers trl peft accelerate bitsandbytes datasets
 
-# === CÉLULA 2: Imports 
+# == CÉLULA 2: Imports 
 
 import json
 import torch
@@ -157,7 +158,7 @@ trainer = DPOTrainer(
                           # congelando os pesos base e usando só os adaptadores LoRA
     args=dpo_config,
     train_dataset=dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
 )
 
 print("\n DPOTrainer inicializado com sucesso!")
