@@ -1,0 +1,17 @@
+# Laboratório 08 — Alinhamento Humano com DPO
+# Dependências do projeto
+# Instale com: pip install -r requirements.txt
+# No Google Colab use: !pip install -r requirements.txt
+
+# Core ML
+torch>=2.1.0
+transformers>=4.40.0
+datasets>=2.18.0
+
+# Fine-tuning e alinhamento
+trl>=0.8.6
+peft>=0.10.0
+
+# Otimização de memória (quantização, paged optimizer)
+accelerate>=0.28.0
+bitsandbytes>=0.43.0
