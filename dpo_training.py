@@ -28,7 +28,7 @@ if torch.cuda.is_available():
     print(f"   Dispositivo: {torch.cuda.get_device_name(0)}")
     print(f"   VRAM disponível: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
 
-# === CÉLULA 3: Configurações Globais
+# === CÉLULA 3: Configurações Globais 
 
 # Modelo base — usamos TinyLlama para funcionar em hardware limitado (Colab Free)
 # Alternativa: "meta-llama/Llama-2-7b-hf" se tiver GPU com 16GB+ VRAM
@@ -111,7 +111,7 @@ model = AutoModelForCausalLM.from_pretrained(
 model = prepare_model_for_kbit_training(model)
 print(" Modelo base carregado e preparado para k-bit training!")
 
-# === CÉLULA 6: Configuração LoRA
+# === CÉLULA 6: Configuração LoRA 
 
 lora_config = LoraConfig(
     r=LORA_R,
@@ -142,7 +142,6 @@ dpo_config = DPOConfig(
     fp16=True,                              # Precisão reduzida para economizar VRAM
     remove_unused_columns=False,
     max_length=MAX_LENGTH,
-    max_prompt_length=MAX_LENGTH // 2,
     report_to="none",                       # Desativa wandb
 )
 
@@ -177,7 +176,7 @@ trainer.save_model(OUTPUT_DIR)
 tokenizer.save_pretrained(OUTPUT_DIR)
 print(f"   Modelo salvo em: {OUTPUT_DIR}")
 
-# === CÉLULA 10: Validação — Teste com Prompt Malicioso
+# === CÉLULA 10: Validação — Teste com Prompt Malicioso 
 
 print("\n" + "="*60)
 print("VALIDAÇÃO: Teste com prompts fora do escopo")
