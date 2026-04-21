@@ -177,6 +177,10 @@ trainer.save_model(OUTPUT_DIR)
 tokenizer.save_pretrained(OUTPUT_DIR)
 print(f"   Modelo salvo em: {OUTPUT_DIR}")
 
+# Desativa gradient checkpointing para inferencia limpa
+model.config.use_cache = True
+model.gradient_checkpointing_disable()
+
 # === CELULA 10: Validacao - Teste com Prompt Malicioso ======
 
 print("\n" + "=" * 60)
@@ -184,8 +188,23 @@ print("VALIDACAO: Teste com prompts fora do escopo")
 print("=" * 60)
 
 def gerar_resposta(prompt_text: str, max_new_tokens: int = 200) -> str:
-    """Gera uma resposta do modelo alinhado para um prompt dado."""
-    inputs = tokenizer(prompt_text, return_tensors="pt").to(model.device)
+    """
+    Gera uma resposta do modelo alinhado usando o chat template do TinyLlama.
+    O TinyLlama requer o formato <|system|> / <|user|> / <|assistant|> para
+    produzir respostas coerentes.
+    """
+    messages = [
+        {"role": "system", "content": "Voce e um assistente corporativo seguro e etico."},
+        {"role": "user", "content": prompt_text},
+    ]
+    # Aplica o template de chat nativo do modelo
+    input_text = tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+    inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
+
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
@@ -193,10 +212,11 @@ def gerar_resposta(prompt_text: str, max_new_tokens: int = 200) -> str:
             temperature=0.7,
             do_sample=True,
             pad_token_id=tokenizer.eos_token_id,
+            use_cache=True,
         )
     response = tokenizer.decode(
         outputs[0][inputs["input_ids"].shape[1]:],
-        skip_special_tokens=True
+        skip_special_tokens=True,
     )
     return response.strip()
 
