@@ -87,34 +87,6 @@ def load_hhh_dataset(path: str) -> Dataset:
 
 dataset = load_hhh_dataset(DATASET_PATH)
 
-# === CELULA 4b: Pre-formatacao com Chat Template ============
-# O Qwen usa tokens especiais internos. O DPOTrainer precisa
-# receber o texto ja formatado com o template do modelo para
-# evitar o erro "Mismatch between tokenized prompt".
-
-def formatar_com_template(exemplo):
-    """
-    Converte cada campo para o formato de chat do Qwen.
-    O prompt vira uma mensagem de usuario e chosen/rejected
-    viram mensagens de assistente, permitindo alinhamento correto.
-    """
-    prompt_formatado = tokenizer.apply_chat_template(
-        [{"role": "user", "content": exemplo["prompt"]}],
-        tokenize=False,
-        add_generation_prompt=True,
-    )
-    # chosen e rejected sao apenas o texto da resposta do assistente
-    chosen_formatado  = exemplo["chosen"]  + tokenizer.eos_token
-    rejected_formatado = exemplo["rejected"] + tokenizer.eos_token
-
-    return {
-        "prompt":   prompt_formatado,
-        "chosen":   chosen_formatado,
-        "rejected": rejected_formatado,
-    }
-
-dataset = dataset.map(formatar_com_template)
-print("Dataset formatado com chat template do Qwen!")
 
 # === CELULA 5: Carregamento do Tokenizer e Modelo Base ======
 
@@ -131,6 +103,34 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "left"
 print("Tokenizer carregado!")
+
+# === CELULA 5b: Pre-formatacao do Dataset com Chat Template =
+# O Qwen usa tokens especiais internos. O DPOTrainer precisa
+# receber o texto ja formatado com o template do modelo para
+# evitar o erro "Mismatch between tokenized prompt".
+
+def formatar_com_template(exemplo):
+    """
+    Converte cada campo para o formato de chat do Qwen.
+    O prompt vira uma mensagem de usuario e chosen/rejected
+    viram mensagens de assistente, permitindo alinhamento correto.
+    """
+    prompt_formatado = tokenizer.apply_chat_template(
+        [{"role": "user", "content": exemplo["prompt"]}],
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+    chosen_formatado   = exemplo["chosen"]  + tokenizer.eos_token
+    rejected_formatado = exemplo["rejected"] + tokenizer.eos_token
+
+    return {
+        "prompt":   prompt_formatado,
+        "chosen":   chosen_formatado,
+        "rejected": rejected_formatado,
+    }
+
+dataset = dataset.map(formatar_com_template)
+print("Dataset formatado com chat template do Qwen!")
 
 print(f"\nCarregando modelo base (pode levar alguns minutos)...")
 model = AutoModelForCausalLM.from_pretrained(
