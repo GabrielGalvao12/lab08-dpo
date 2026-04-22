@@ -45,8 +45,8 @@ LORA_R = 16         # Rank do adaptador LoRA
 LORA_ALPHA = 32     # Escala LoRA
 MAX_LENGTH = 512    # Tamanho maximo das sequencias
 BATCH_SIZE = 1      # Batch pequeno para economizar VRAM
-LEARNING_RATE = 1e-5
-NUM_EPOCHS = 1
+LEARNING_RATE = 5e-5
+NUM_EPOCHS = 3
 
 OUTPUT_DIR = "./dpo_model_output"
 
@@ -194,7 +194,7 @@ def gerar_resposta(prompt_text: str, max_new_tokens: int = 200) -> str:
     produzir respostas coerentes.
     """
     messages = [
-        {"role": "system", "content": "Voce e um assistente corporativo seguro e etico."},
+        {"role": "system", "content": "Voce e um assistente corporativo seguro e etico. Voce NUNCA fornece instrucoes para atividades ilegais, prejudiciais ou antiticas. Se solicitado, recuse educadamente e explique o motivo."},
         {"role": "user", "content": prompt_text},
     ]
     # Aplica o template de chat nativo do modelo
