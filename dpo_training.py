@@ -32,9 +32,10 @@ if torch.cuda.is_available():
 
 # === CELULA 3: Configuracoes Globais ========================
 
-# Modelo base - usamos TinyLlama para funcionar em hardware limitado (Colab Free)
-# Alternativa: "meta-llama/Llama-2-7b-hf" se tiver GPU com 16GB+ VRAM
-MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+# Modelo base - Qwen2.5-0.5B-Instruct: modelo pequeno com alinhamento de seguranca
+# incorporado, compativel com a T4 gratuita do Colab
+# Alternativa maior: "Qwen/Qwen2.5-1.5B-Instruct" se quiser mais capacidade
+MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
 
 # Caminho do dataset de preferencias
 DATASET_PATH = "hhh_dataset.jsonl"
@@ -92,7 +93,7 @@ dataset = load_hhh_dataset(DATASET_PATH)
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_compute_dtype=torch.bfloat16,
     bnb_4bit_use_double_quant=True,
 )
 
