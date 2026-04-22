@@ -46,7 +46,7 @@ LORA_ALPHA = 32     # Escala LoRA
 MAX_LENGTH = 512    # Tamanho maximo das sequencias
 BATCH_SIZE = 1      # Batch pequeno para economizar VRAM
 LEARNING_RATE = 5e-5
-NUM_EPOCHS = 3
+NUM_EPOCHS = 5
 
 OUTPUT_DIR = "./dpo_model_output"
 
