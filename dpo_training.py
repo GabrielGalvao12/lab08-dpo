@@ -87,6 +87,35 @@ def load_hhh_dataset(path: str) -> Dataset:
 
 dataset = load_hhh_dataset(DATASET_PATH)
 
+# === CELULA 4b: Pre-formatacao com Chat Template ============
+# O Qwen usa tokens especiais internos. O DPOTrainer precisa
+# receber o texto ja formatado com o template do modelo para
+# evitar o erro "Mismatch between tokenized prompt".
+
+def formatar_com_template(exemplo):
+    """
+    Converte cada campo para o formato de chat do Qwen.
+    O prompt vira uma mensagem de usuario e chosen/rejected
+    viram mensagens de assistente, permitindo alinhamento correto.
+    """
+    prompt_formatado = tokenizer.apply_chat_template(
+        [{"role": "user", "content": exemplo["prompt"]}],
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+    # chosen e rejected sao apenas o texto da resposta do assistente
+    chosen_formatado  = exemplo["chosen"]  + tokenizer.eos_token
+    rejected_formatado = exemplo["rejected"] + tokenizer.eos_token
+
+    return {
+        "prompt":   prompt_formatado,
+        "chosen":   chosen_formatado,
+        "rejected": rejected_formatado,
+    }
+
+dataset = dataset.map(formatar_com_template)
+print("Dataset formatado com chat template do Qwen!")
+
 # === CELULA 5: Carregamento do Tokenizer e Modelo Base ======
 
 # Configuracao de quantizacao 4-bit para economizar VRAM
@@ -141,10 +170,12 @@ dpo_config = DPOConfig(
     optim="paged_adamw_32bit",              # Estrategia de economia de memoria (obrigatorio)
     logging_steps=5,
     save_steps=50,
-    bf16=True,                              # BFloat16 - compativel com TinyLlama na T4
+    bf16=True,                              # BFloat16 - compativel com Qwen na T4
     remove_unused_columns=False,
     max_length=MAX_LENGTH,
     report_to="none",                       # Desativa wandb
+    precompute_ref_log_probs=False,
+    dataset_num_proc=1,
 )
 
 print(f"\nDPOConfig definida!")
